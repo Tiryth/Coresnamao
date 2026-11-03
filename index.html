@@ -1,0 +1,224 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Sinais das Cores em Libras</title>
+<style>
+  /* Layout: grade de cartas-cor; hover (desktop) ou toque (celular) abre o sinal em movimento num overlay */
+  :root{
+    --bg:#f3f1ec; --surface:#ffffff; --ink:#1f2430; --muted:#6b7280;
+    --line:#e2ddd3; --accent:#2b6cd8; --accent-ink:#17407a;
+    --shadow:0 6px 24px rgba(31,36,48,.14);
+    --r:18px;
+    --font-display:"Fraunces","Georgia",serif;
+    --font-body:"Work Sans",system-ui,-apple-system,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+    --bg:#15171c; --surface:#1f232b; --ink:#eef0f4; --muted:#9aa2b1;
+    --line:#2d323c; --accent:#5a8ee6; --accent-ink:#bcd2f4;
+    --shadow:0 8px 30px rgba(0,0,0,.5); color-scheme:dark;
+  }}
+  :root[data-theme="dark"]{
+    --bg:#15171c; --surface:#1f232b; --ink:#eef0f4; --muted:#9aa2b1;
+    --line:#2d323c; --accent:#5a8ee6; --accent-ink:#bcd2f4;
+    --shadow:0 8px 30px rgba(0,0,0,.5); color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);line-height:1.55}
+  .wrap{
+    max-width:960px;margin:0 auto;
+    padding-left:max(16px,env(safe-area-inset-left,0px));
+    padding-right:max(16px,env(safe-area-inset-right,0px));
+    padding-block:clamp(28px,6vw,56px);
+  }
+
+  header{margin-bottom:28px}
+  .eyebrow{
+    font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--accent-ink);font-weight:600;margin:0 0 10px;
+  }
+  h1{
+    font-family:var(--font-display);font-weight:600;
+    font-size:clamp(2rem,6vw,3.1rem);line-height:1.04;margin:0 0 14px;
+    text-wrap:balance;letter-spacing:-.01em;
+  }
+  .lead{font-size:clamp(1rem,2.4vw,1.15rem);color:var(--muted);max-width:60ch;margin:0}
+  .hint{
+    display:inline-flex;align-items:center;gap:.5rem;margin-top:18px;
+    font-size:.9rem;color:var(--ink);background:var(--surface);
+    border:1px solid var(--line);border-radius:999px;padding:.5rem .95rem;
+  }
+  .hint b{color:var(--accent-ink)}
+
+  .grid{
+    display:grid;gap:clamp(14px,3vw,22px);margin-top:30px;
+    grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  }
+  .subhead{
+    font-family:var(--font-display);font-weight:600;
+    font-size:clamp(1.3rem,3.5vw,1.7rem);margin:42px 0 6px;letter-spacing:-.01em;
+  }
+  /* carta de ação: fundo especial em vez de cor chapada */
+  .swatch.acao{
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-family:var(--font-display);font-weight:600;
+    font-size:1.5rem;text-align:center;line-height:1.05;padding:8px;
+  }
+
+  /* carta-cor */
+  .card{
+    position:relative;border:0;padding:0;cursor:pointer;
+    background:var(--surface);border-radius:var(--r);
+    box-shadow:var(--shadow);overflow:hidden;
+    font-family:inherit;color:inherit;text-align:left;
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .card:hover,.card:focus-visible{transform:translateY(-4px)}
+  .card:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+  .swatch{height:92px;width:100%;display:block}
+  .card .label{
+    display:flex;align-items:center;justify-content:space-between;gap:.5rem;
+    padding:.7rem .9rem .8rem;font-weight:600;font-size:1.02rem;
+  }
+  .card .label .tap{font-size:.72rem;color:var(--muted);font-weight:500}
+
+  /* overlay do sinal, dentro da carta */
+  .reveal{
+    position:absolute;inset:0;background:var(--surface);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:.4rem;padding:12px;opacity:0;visibility:hidden;
+    transition:opacity .16s ease;
+  }
+  .card.is-open .reveal,
+  .card:hover .reveal{opacity:1;visibility:visible}
+  @media (hover:none){ .card:hover .reveal{opacity:0;visibility:hidden} } /* no celular só abre por toque */
+  .card.is-open .reveal{opacity:1;visibility:visible}
+
+  .gifbox{
+    width:100%;flex:1;border-radius:12px;overflow:hidden;
+    background:repeating-conic-gradient(var(--line) 0% 25%, transparent 0% 50%) 50%/22px 22px, var(--bg);
+    display:flex;align-items:center;justify-content:center;position:relative;
+    border:1px dashed var(--line);
+  }
+  .gifbox img{width:100%;height:100%;object-fit:contain;display:block}
+  /* texto do placeholder (some quando houver <img>) */
+  .ph{color:var(--muted);font-size:.78rem;text-align:center;padding:10px;line-height:1.4;display:none}
+  .gifbox.semgif img{display:none}
+  .gifbox.semgif .ph{display:block}
+  .reveal .rname{font-weight:600;font-size:.95rem}
+  .reveal .close{
+    position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;
+    border:1px solid var(--line);background:var(--surface);color:var(--ink);
+    font-size:1rem;line-height:1;cursor:pointer;display:none;
+  }
+  @media (hover:none){ .card.is-open .reveal .close{display:block} }
+
+  footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:.86rem}
+  footer a{color:var(--accent-ink)}
+  code{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:.1rem .4rem;font-size:.85em}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap">
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Cores em Libras · Jogo educativo</p>
+    <h1>Como se faz cada cor em Libras</h1>
+    <p class="lead">Passe o mouse sobre uma cor para ver o sinal em movimento. No celular, é só tocar na cor.</p>
+    <span class="hint">💡 <span>No computador: <b>passe o mouse</b>. No celular: <b>toque</b> na cor.</span></span>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+  <h2 class="subhead">Cartas de ação</h2>
+  <p class="lead">Além das cores, o jogo tem cartas especiais que mudam o rumo da partida.</p>
+  <div class="grid" id="grid-acao"></div>
+
+  <footer>
+    <p>Material de apoio do projeto de extensão <b>Jogo de Tabuleiro Educativo: Aprendendo Cores em Libras</b> — UniSenac. Os sinais são apresentados em vídeo (GIF) para mostrar o movimento, que uma imagem parada não consegue registrar.</p>
+  </footer>
+</div>
+
+<script>
+  // Cores do baralho. Para publicar de verdade, troque `gif` pela URL do GIF de cada sinal.
+  // Ex.: { nome:"Azul", cor:"#2B6CD8", gif:"gifs/azul.gif" }
+  const CORES = [
+    { nome:"Vermelho", cor:"#D8392B", gif:"gifs/vermelho.gif" },
+    { nome:"Azul",     cor:"#2B6CD8", gif:"gifs/azul.gif" },
+    { nome:"Amarelo",  cor:"#F2C014", gif:"gifs/amarelo.gif" },
+    { nome:"Verde",    cor:"#3CA03C", gif:"gifs/verde.gif" },
+    { nome:"Preto",    cor:"#232323", gif:"gifs/preto.gif" },
+    { nome:"Branco",   cor:"#F4F4F0", gif:"gifs/branco.gif" },
+    { nome:"Rosa",     cor:"#E86FA6", gif:"gifs/rosa.gif" },
+    { nome:"Roxo",     cor:"#7E4FC0", gif:"gifs/roxo.gif" },
+    { nome:"Laranja",  cor:"#E8832B", gif:"gifs/laranja.gif" },
+  ];
+
+  // Cartas de ação. `legenda` explica o que a carta faz; o GIF mostra o sinal/movimento.
+  const ACOES = [
+    { nome:"Azar",   bg:"linear-gradient(135deg,#7e4fc0,#432a66)", legenda:"Troque toda a sua mão com um jogador à sua escolha.", gif:"gifs/azar.gif" },
+  ];
+
+  function montaCarta(c, opts){
+    const card = document.createElement("button");
+    card.className = "card";
+    card.type = "button";
+    card.setAttribute("aria-label", opts.aria);
+
+    const media = `<img src="${c.gif}" alt="${opts.alt}" loading="lazy"
+         onerror="this.closest('.gifbox').classList.add('semgif')">
+       <p class="ph">Adicione o GIF<br>${opts.phTexto}</p>`;
+
+    card.innerHTML = `
+      ${opts.swatch}
+      <span class="label">${c.nome} <span class="tap">ver sinal</span></span>
+      <span class="reveal">
+        <button type="button" class="close" aria-label="Fechar">×</button>
+        <span class="gifbox">${media}</span>
+        <span class="rname">${opts.rname}</span>
+        ${opts.legenda ? `<span class="ph" style="padding:4px 2px 0">${opts.legenda}</span>` : ""}
+      </span>`;
+
+    card.addEventListener("click", (e) => {
+      if (e.target.classList.contains("close")) { card.classList.remove("is-open"); return; }
+      if (window.matchMedia("(hover:none)").matches) {
+        const open = card.classList.contains("is-open");
+        document.querySelectorAll(".card.is-open").forEach(k => k.classList.remove("is-open"));
+        if (!open) card.classList.add("is-open");
+      }
+    });
+    return card;
+  }
+
+  const grid = document.getElementById("grid");
+  CORES.forEach(c => {
+    grid.appendChild(montaCarta(c, {
+      aria: "Ver o sinal de " + c.nome + " em Libras",
+      alt: "Sinal de " + c.nome + " em Libras",
+      phTexto: "do sinal de <b>" + c.nome + "</b>",
+      swatch: `<span class="swatch" style="background:${c.cor}"></span>`,
+      rname: "Sinal de " + c.nome,
+      legenda: ""
+    }));
+  });
+
+  const gridAcao = document.getElementById("grid-acao");
+  ACOES.forEach(c => {
+    gridAcao.appendChild(montaCarta(c, {
+      aria: "Ver a carta " + c.nome + " e seu sinal em Libras",
+      alt: "Sinal da carta " + c.nome + " em Libras",
+      phTexto: "do sinal de <b>" + c.nome + "</b>",
+      swatch: `<span class="swatch acao" style="background:${c.bg}">${c.nome}</span>`,
+      rname: "Carta " + c.nome,
+      legenda: c.legenda
+    }));
+  });
+
+  // tocar fora fecha qualquer carta aberta (modo celular)
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".card")) {
+      document.querySelectorAll(".card.is-open").forEach(k => k.classList.remove("is-open"));
+    }
+  });
+</script>
